@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
@@ -12,14 +15,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci --only=production
 
       - name: Run Tests
-        run: npm test  # (Ensure you have tests configured)
+        run: npm test
 
       - name: Build Project
         run: npm run build
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
 
       - name: Deploy to Vercel
         run: vercel --token ${{ secrets.VERCEL_TOKEN }} --prod
