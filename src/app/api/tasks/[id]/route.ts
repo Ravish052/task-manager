@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectDB from "@/lib/dbConnect";
 import Task from "@/models/Task";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-
+// ✅ Use `getServerSession()` without manually passing `authOptions`
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   await connectDB();
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
-  if (!session) {
+  if (!session || !session.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -33,9 +32,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   await connectDB();
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession();
 
-  if (!session) {
+  if (!session || !session.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -51,4 +50,3 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });
   }
 }
-
