@@ -16,7 +16,7 @@ export default function LoginPage() {
     }
 
     const result = await signIn("credentials", { email, password, redirect: false });
-
+    console.log("login result",result)
     if (!result?.error) {
       router.push("/dashboard");
     }else {

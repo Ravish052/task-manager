@@ -17,7 +17,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-
+  
   const fetchTasks = async () => {
     const res = await fetch("/api/tasks");
     const data = await res.json();
@@ -35,6 +35,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
+    console.log("Session Data:", session);
     if (session) fetchTasks();
   }, [session]);
 
