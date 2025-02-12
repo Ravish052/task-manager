@@ -33,29 +33,44 @@ export default function TaskForm({ onTaskAdded, editingTask, setEditingTask }: T
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     if (!title.trim()) return;
-
-    const url = editingTask ? `/api/tasks/${editingTask._id}` : "/api/tasks";
+  
+    const url = editingTask?._id ? `/api/tasks/${editingTask._id}` : "/api/tasks";
     const method = editingTask ? "PATCH" : "POST";
-    const body = JSON.stringify({ title, priority, status });
-
+    const body = JSON.stringify({ 
+      title: title.trim(), 
+      priority: priority.trim(), 
+      status: status.trim() 
+    });
+  
     try {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body,
       });
-      if (!response.ok) throw new Error("Failed to save task");
-
+  
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.log(response)
+        throw new Error(errorMessage || "Failed to save task");
+      }
+  
       setTitle("");
       setPriority("medium");
       setStatus("todo");
       setEditingTask(null);
       onTaskAdded();
-    } catch (error) {
-      console.error("Error saving task:", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error saving task:", error.message);
+      } else {
+        console.error("An unknown error occurred.");
+      }
     }
   };
+  
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
